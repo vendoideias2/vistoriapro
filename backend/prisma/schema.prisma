@@ -1,0 +1,208 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// USUÁRIOS DO SISTEMA
+// ==========================================
+
+model Usuario {
+  id           String   @id @default(uuid())
+  nome         String
+  email        String   @unique
+  senha        String
+  role         Role     @default(VISTORIADOR)
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now()) @map("criado_em")
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  vistorias Vistoria[]
+  logs      Log[]
+
+  @@map("usuarios")
+}
+
+enum Role {
+  ADMIN
+  VISTORIADOR
+  CORRETOR
+  VISUALIZADOR
+}
+
+// ==========================================
+// IMÓVEIS
+// ==========================================
+
+model Imovel {
+  id           String     @id @default(uuid())
+  tipo         TipoImovel
+  endereco     String
+  numero       String?
+  complemento  String?
+  bairro       String
+  cidade       String
+  estado       String     @db.Char(2)
+  cep          String?
+  proprietario String?
+  telefone     String?
+  observacoes  String?
+  ativo        Boolean    @default(true)
+  criadoEm     DateTime   @default(now()) @map("criado_em")
+  atualizadoEm DateTime   @updatedAt @map("atualizado_em")
+
+  ambientes Ambiente[]
+  vistorias Vistoria[]
+
+  @@map("imoveis")
+}
+
+enum TipoImovel {
+  CASA
+  APARTAMENTO
+  COMERCIAL
+  TERRENO
+  RURAL
+}
+
+// ==========================================
+// AMBIENTES DO IMÓVEL
+// ==========================================
+
+model Ambiente {
+  id       String  @id @default(uuid())
+  nome     String
+  existe   Boolean @default(true)
+  ordem    Int     @default(0)
+  imovelId String  @map("imovel_id")
+  imovel   Imovel  @relation(fields: [imovelId], references: [id], onDelete: Cascade)
+
+  itensVistoria ItemVistoria[]
+
+  @@map("ambientes")
+}
+
+// ==========================================
+// VISTORIAS
+// ==========================================
+
+model Vistoria {
+  id            String         @id @default(uuid())
+  tipo          TipoVistoria
+  status        StatusVistoria @default(EM_ANDAMENTO)
+  dataVistoria  DateTime       @default(now()) @map("data_vistoria")
+  observacoes   String?
+  imovelId      String         @map("imovel_id")
+  imovel        Imovel         @relation(fields: [imovelId], references: [id], onDelete: Cascade)
+  vistoriadorId String         @map("vistoriador_id")
+  vistoriador   Usuario        @relation(fields: [vistoriadorId], references: [id])
+  criadoEm      DateTime       @default(now()) @map("criado_em")
+  atualizadoEm  DateTime       @updatedAt @map("atualizado_em")
+  finalizadoEm  DateTime?      @map("finalizado_em")
+  
+  // Assinaturas digitais
+  assinaturaVistoriador String? @map("assinatura_vistoriador") @db.Text
+  assinaturaCliente     String? @map("assinatura_cliente") @db.Text
+  nomeCliente           String? @map("nome_cliente")
+
+  itens ItemVistoria[]
+
+  @@map("vistorias")
+}
+
+enum TipoVistoria {
+  ENTRADA
+  SAIDA
+  PERIODICA
+}
+
+enum StatusVistoria {
+  EM_ANDAMENTO
+  FINALIZADA
+  CANCELADA
+}
+
+// ==========================================
+// ITENS DE CHECKLIST
+// ==========================================
+
+model ItemVistoria {
+  id         String     @id @default(uuid())
+  vistoriaId String     @map("vistoria_id")
+  vistoria   Vistoria   @relation(fields: [vistoriaId], references: [id], onDelete: Cascade)
+  ambienteId String     @map("ambiente_id")
+  ambiente   Ambiente   @relation(fields: [ambienteId], references: [id], onDelete: Cascade)
+  item       String
+  estado     EstadoItem @default(NAO_VERIFICADO)
+  observacao String?
+  criadoEm   DateTime   @default(now()) @map("criado_em")
+
+  fotos Foto[]
+
+  @@map("itens_vistoria")
+}
+
+enum EstadoItem {
+  BOM
+  REGULAR
+  RUIM
+  NAO_APLICAVEL
+  NAO_VERIFICADO
+}
+
+// ==========================================
+// FOTOS
+// ==========================================
+
+model Foto {
+  id             String       @id @default(uuid())
+  url            String
+  descricao      String?
+  itemVistoriaId String       @map("item_vistoria_id")
+  itemVistoria   ItemVistoria @relation(fields: [itemVistoriaId], references: [id], onDelete: Cascade)
+  criadoEm       DateTime     @default(now()) @map("criado_em")
+
+  @@map("fotos")
+}
+
+// ==========================================
+// LOGS DE AUDITORIA
+// ==========================================
+
+model Log {
+  id         String   @id @default(uuid())
+  acao       String
+  entidade   String
+  entidadeId String   @map("entidade_id")
+  dados      Json?
+  usuarioId  String   @map("usuario_id")
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  criadoEm   DateTime @default(now()) @map("criado_em")
+  ip         String?
+
+  @@index([entidade, entidadeId])
+  @@index([usuarioId])
+  @@index([criadoEm])
+  @@map("logs")
+}
+
+// ==========================================
+// CONFIGURAÇÕES DO SISTEMA
+// ==========================================
+
+model Configuracao {
+  id          String   @id @default(uuid())
+  categoria   String   // smtp, chatwoot, sistema, etc
+  chave       String   // host, user, token, etc
+  valor       String   @db.Text
+  descricao   String?
+  sensivel    Boolean  @default(false) // Se true, valor é mascarado na UI
+  atualizadoEm DateTime @updatedAt @map("atualizado_em")
+
+  @@unique([categoria, chave])
+  @@map("configuracoes")
+}
