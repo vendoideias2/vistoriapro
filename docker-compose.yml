@@ -14,13 +14,13 @@ services:
     networks:
       - vistoria_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vistoria_user -d vistoria_app"]
+      test: [ "CMD-SHELL", "pg_isready -U vistoria_user -d vistoria_app" ]
       interval: 10s
       timeout: 5s
       retries: 5
 
   backend:
-    build: 
+    build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: vistoria_backend
@@ -45,11 +45,11 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:3001}
+        NEXT_PUBLIC_API_URL: ${API_URL:-https://api.vistoria.vendoideias.com}
     container_name: vistoria_frontend
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: ${API_URL:-http://localhost:3001}
+      NEXT_PUBLIC_API_URL: ${API_URL:-https://api.vistoria.vendoideias.com}
     depends_on:
       - backend
     networks:
