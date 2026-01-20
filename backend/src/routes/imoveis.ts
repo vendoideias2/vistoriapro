@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { prisma } from '../index.js';
+import { Prisma } from '@prisma/client';
 import { authMiddleware, AuthRequest } from '../middlewares/auth.js';
 import { createError } from '../middlewares/errorHandler.js';
 
@@ -213,7 +214,7 @@ router.put('/:id', async (req: AuthRequest, res, next) => {
         const imovel = await prisma.imovel.update({
             where: { id: req.params.id },
             data: {
-                ...data,
+                ...(data as Prisma.ImovelUpdateInput),
                 estado: data.estado?.toUpperCase(),
             },
             include: {

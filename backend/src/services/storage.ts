@@ -78,7 +78,7 @@ async function uploadGitHub(buffer: Buffer, filename: string): Promise<UploadRes
     });
 
     if (!response.ok) {
-        const error = await response.json();
+        const error = await response.json() as any;
         throw new Error(`Erro ao fazer upload para GitHub: ${error.message}`);
     }
 
@@ -126,7 +126,7 @@ async function deleteGitHub(filePath: string): Promise<void> {
         return;
     }
 
-    const fileData = await getResponse.json();
+    const fileData = await getResponse.json() as any;
 
     // Deletar o arquivo
     const deleteResponse = await fetch(apiUrl, {
@@ -144,7 +144,7 @@ async function deleteGitHub(filePath: string): Promise<void> {
     });
 
     if (!deleteResponse.ok) {
-        const error = await deleteResponse.json();
+        const error = await deleteResponse.json() as any;
         console.error('Erro ao deletar do GitHub:', error.message);
     }
 }

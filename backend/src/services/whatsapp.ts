@@ -37,7 +37,7 @@ async function findOrCreateContact(phoneNumber: string, name?: string): Promise<
             }
         );
 
-        const searchData = await searchRes.json();
+        const searchData = await searchRes.json() as any;
 
         if (searchData.payload?.length > 0) {
             return searchData.payload[0].id;
@@ -60,7 +60,7 @@ async function findOrCreateContact(phoneNumber: string, name?: string): Promise<
             }
         );
 
-        const createData = await createRes.json();
+        const createData = await createRes.json() as any;
         return createData.payload?.contact?.id || null;
     } catch (error) {
         console.error('Erro ao buscar/criar contato:', error);
@@ -81,7 +81,7 @@ async function findOrCreateConversation(contactId: string): Promise<string | nul
             }
         );
 
-        const data = await res.json();
+        const data = await res.json() as any;
 
         // Retorna conversa existente aberta
         const openConversation = data.payload?.find((c: any) => c.status === 'open');
@@ -105,7 +105,7 @@ async function findOrCreateConversation(contactId: string): Promise<string | nul
             }
         );
 
-        const createData = await createRes.json();
+        const createData = await createRes.json() as any;
         return createData.id || null;
     } catch (error) {
         console.error('Erro ao buscar/criar conversa:', error);

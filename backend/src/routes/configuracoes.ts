@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { Configuracao } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../index.js';
 import { authMiddleware, AuthRequest } from '../middlewares/auth.js';
@@ -32,7 +33,8 @@ router.get('/', async (req: AuthRequest, res, next) => {
         });
 
         // Mascarar valores sensíveis
-        const maskedConfigs = configs.map(c => ({
+        // Explicitly type the config objects
+        const maskedConfigs = configs.map((c: Configuracao) => ({
             ...c,
             valor: c.sensivel ? '••••••••' : c.valor,
         }));
