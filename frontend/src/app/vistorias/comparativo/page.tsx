@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '../../app/providers';
+import { useAuth } from '../../providers';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
