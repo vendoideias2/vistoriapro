@@ -54,9 +54,8 @@ services:
     image: ghcr.io/vendoideias2/vistoriapro-nginx:latest
     container_name: vistoria_nginx
     restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
+    expose:
+      - "80"
     volumes:
       - uploads_data:/var/www/uploads:ro
     depends_on:
