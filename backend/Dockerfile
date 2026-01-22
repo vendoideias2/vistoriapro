@@ -2,14 +2,16 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Instalar dependências do Puppeteer
+# Instalar dependências do Puppeteer e OpenSSL para Prisma
 RUN apk add --no-cache \
     chromium \
     nss \
     freetype \
     harfbuzz \
     ca-certificates \
-    ttf-freefont
+    ttf-freefont \
+    openssl \
+    openssl-dev
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
@@ -23,8 +25,8 @@ RUN npm ci
 # Copiar código fonte
 COPY . .
 
-# Gerar Prisma Client
-RUN npx prisma generate
+# Gerar Prisma Client (usando URL placeholder - conexão real é em runtime)
+RUN DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder" npx prisma generate
 
 # Build TypeScript
 RUN npm run build
