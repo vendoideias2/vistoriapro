@@ -2,24 +2,10 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:15-alpine
-    container_name: vistoria_postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: vistoria_app
-      POSTGRES_USER: vistoria_user
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-VistoriaApp2026!}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - vistoria_network
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U vistoria_user -d vistoria_app" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    platform: linux/arm64
 
   backend:
+    platform: linux/arm64
     image: ghcr.io/vendoideias2/vistoriapro-backend:latest
     container_name: vistoria_backend
     restart: unless-stopped
@@ -40,6 +26,7 @@ services:
       - vistoria_network
 
   frontend:
+    platform: linux/arm64
     image: ghcr.io/vendoideias2/vistoriapro-frontend:latest
     container_name: vistoria_frontend
     restart: unless-stopped
@@ -51,6 +38,7 @@ services:
       - vistoria_network
 
   nginx:
+    platform: linux/arm64
     image: ghcr.io/vendoideias2/vistoriapro-nginx:latest
     container_name: vistoria_nginx
     restart: unless-stopped
